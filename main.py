@@ -4,8 +4,6 @@ import matplotlib.pyplot
 gravitational_acceleration = 9.81 # m/s^2
 time_step = 0.1 # s
 air_density_at_sea_level = 1.22 # kg/m^3
-frontal_area = 0.002 # m^2
-coefficient_of_drag = 0.25 # a rough rocket Cd
 
 
 
@@ -86,6 +84,9 @@ max_alt = []
 
 min_value = float(raw_input("Min value for rocket mass: "))
 max_value = float(raw_input("Max value for rocket mass: "))
+
+frontal_area = float(raw_input("Frontal area of rocket: "))
+coefficient_of_drag = float(raw_input("Coefficient of drag: "))
 
 masses = numpy.arange(min_value, max_value + 0.1, 0.1)
 
