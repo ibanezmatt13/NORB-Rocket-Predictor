@@ -11,3 +11,18 @@ At the moment, many variables are pre-defined as we haven't reached the stage of
 
 
 Upon completion, this software will perform as described here: http://www.norb.co.uk/projects/rocket-trajectory-predictor/
+
+
+Note
+====
+
+To run this for yourself, you need to ensure that you have the following Python modules installed:
+
+1. Matplotlib
+2. python-dateutil
+3. numpy
+4. pyparsing
+5. six
+
+
+All can be found here: http://www.lfd.uci.edu/~gohlke/pythonlibs/ but for Linux users, just use pip.
