@@ -83,7 +83,12 @@ def plot():
 
 
 max_alt = []
-masses = [0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1]
+
+min_value = float(raw_input("Min value for rocket mass: "))
+max_value = float(raw_input("Max value for rocket mass: "))
+
+masses = numpy.arange(min_value, max_value + 0.1, 0.1)
+
 i = 0
 optimal_alt = 0
 optimal_mass = 0
