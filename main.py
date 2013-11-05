@@ -3,9 +3,6 @@ import matplotlib.pyplot
 
 gravitational_acceleration = 9.81 # m/s^2
 time_step = 0.1 # s
-air_density_at_sea_level = 1.22 # kg/m^3
-
-
 
 class flight_path:
 
@@ -33,6 +30,10 @@ def calculate(mass):
     current_velocity = 0
     current_drag = 0
 
+    temperature = 0
+    pressure = 0
+    air_density = 0
+
     current_flightpath = flight_path() # create flightpath object
 
     counter = 0 
@@ -41,8 +42,20 @@ def calculate(mass):
         current_time = current_time + time_step
         if counter < len(motor_thrust):
             current_velocity = current_velocity + ((motor_thrust[counter] / mass) * time_step)
+        if current_altitude > 25000:
+            temperature = -131.21 + (.00299 * current_altitude)
+            pressure = 2.488 * (((temperature + 273.1) / 216.6) ** -11.388)
+            air_density = pressure / (.2869 * (temperature + 273.1))
+        elif current_altitude >= 11000:
+            temperature = -56.46
+            pressure = 22.65 * (10 ** (1.73 - (.000157 * current_altitude)))
+            air_density = pressure / (.2869 * (temperature + 273.1))
+        else:
+            temperature = 15.04 - (.00649 * current_altitude)
+            pressure = 101.29 * (((temperature + 273.1) / 288.08) ** 5.256)
+            air_density = pressure / (.2869 * (temperature + 273.1))
         
-        current_drag = (air_density_at_sea_level / 2) * (current_velocity*abs(current_velocity)) * coefficient_of_drag * frontal_area
+        current_drag = (air_density / 2) * (current_velocity*abs(current_velocity)) * coefficient_of_drag * frontal_area
         current_velocity = current_velocity + (time_step * (-gravitational_acceleration + (int(-current_drag) / mass)))
         current_altitude = float(current_altitude + (current_velocity * time_step))
 
@@ -50,7 +63,7 @@ def calculate(mass):
             max_altitude = current_altitude
 
         if current_altitude > 0:
-            print current_time, current_altitude, current_velocity, current_drag
+            print current_time, current_altitude, current_velocity, current_drag, air_density
             current_flightpath.add_rocket_position(current_time, current_altitude, current_velocity, current_drag)
 
         counter += 1
