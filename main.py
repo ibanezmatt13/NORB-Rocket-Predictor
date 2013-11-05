@@ -30,6 +30,7 @@ def calculate(mass):
     current_velocity = 0
     current_drag = 0
 
+    # used for pressure model calculations
     temperature = 0
     pressure = 0
     air_density = 0
@@ -40,8 +41,12 @@ def calculate(mass):
 
     while current_altitude > 0 or counter == 0:
         current_time = current_time + time_step
+
+        # if there is still bumpf left in the motor, take it into account
         if counter < len(motor_thrust):
             current_velocity = current_velocity + ((motor_thrust[counter] / mass) * time_step)
+
+        # apply the appropriate pressure model calculations
         if current_altitude > 25000:
             temperature = -131.21 + (.00299 * current_altitude)
             pressure = 2.488 * (((temperature + 273.1) / 216.6) ** -11.388)
@@ -106,6 +111,8 @@ masses = numpy.arange(min_value, max_value + 0.1, 0.1)
 i = 0
 optimal_alt = 0
 optimal_mass = 0
+
+# goes through all masses in array defined by user until optimal is reached
 for mass in masses:
     alt_at_mass, flightpath = calculate(mass)
     max_alt.append(alt_at_mass)
@@ -117,6 +124,7 @@ for mass in masses:
         
     i += 1
 
+#create object for the optimal mass and plot it
 mass, flightpath = calculate(optimal_mass)
 
 plot()
