@@ -20,7 +20,7 @@ class flight_path:
 
 
 
-def calculate(mass):
+def calculate(mass, frontal_area, drag_coefficient):
     
     motor_thrust = [50 for x in range(30)] # 50N of constant thrust for 3 seconds
 
@@ -77,7 +77,7 @@ def calculate(mass):
     print max_altitude
     return max_altitude, current_flightpath
 
-def plot():
+def plot(optimal_mass, optimal_alt, flightpath):
     
     time = numpy.asarray(flightpath.time)
     altitude = numpy.asarray(flightpath.altitude)
@@ -98,33 +98,41 @@ def plot():
     matplotlib.pyplot.show()
 
 
-max_alt = []
+def query_user():
 
-min_value = float(raw_input("Min value for rocket mass: "))
-max_value = float(raw_input("Max value for rocket mass: "))
+    min_value = float(raw_input("Min value for rocket mass: "))
+    max_value = float(raw_input("Max value for rocket mass: "))
+    frontal_area = float(raw_input("Frontal area of rocket: "))
+    drag_coefficient = float(raw_input("Coefficient of drag: "))
 
-frontal_area = float(raw_input("Frontal area of rocket: "))
-drag_coefficient = float(raw_input("Coefficient of drag: "))
+    masses = numpy.arange(min_value, max_value + 0.1, 0.1)
 
-masses = numpy.arange(min_value, max_value + 0.1, 0.1)
+    run(masses, frontal_area, drag_coefficient)
 
-i = 0
-optimal_alt = 0
-optimal_mass = 0
+def run(masses, frontal_area, drag_coefficient):
 
-# goes through all masses in array defined by user until optimal is reached
-for mass in masses:
-    alt_at_mass, flightpath = calculate(mass)
-    max_alt.append(alt_at_mass)
-    if float(alt_at_mass) > float(optimal_alt):
-        optimal_alt = alt_at_mass
-        optimal_mass = mass
-    else:
-        break
+    max_alt = []
+    i = 0
+    optimal_alt = 0
+    optimal_mass = 0
+
+    # goes through all masses in array defined by user until optimal is reached
+    for mass in masses:
+        alt_at_mass, flightpath = calculate(mass, frontal_area, drag_coefficient)
+        max_alt.append(alt_at_mass)
+        if float(alt_at_mass) > float(optimal_alt):
+            optimal_alt = alt_at_mass
+            optimal_mass = mass
+        else:
+            break
         
-    i += 1
+        i += 1
 
-#create object for the optimal mass and plot it
-mass, flightpath = calculate(optimal_mass)
+    #create object for the optimal mass and plot it
+    mass, flightpath = calculate(optimal_mass, frontal_area, drag_coefficient)
 
-plot()
+    plot(optimal_mass, optimal_alt, flightpath)
+
+
+
+query_user()
