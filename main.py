@@ -1,7 +1,7 @@
 import numpy
 import matplotlib.pyplot
 
-gravitational_acceleration = 9.81 # m/s^2
+g = 9.81 # m/s^2
 time_step = 0.1 # s
 
 class flight_path:
@@ -60,8 +60,8 @@ def calculate(mass):
             pressure = 101.29 * (((temperature + 273.1) / 288.08) ** 5.256)
             air_density = pressure / (.2869 * (temperature + 273.1))
         
-        current_drag = (air_density / 2) * (current_velocity*abs(current_velocity)) * coefficient_of_drag * frontal_area
-        current_velocity = current_velocity + (time_step * (-gravitational_acceleration + (int(-current_drag) / mass)))
+        current_drag = (air_density / 2) * (current_velocity*abs(current_velocity)) * drag_coefficient * frontal_area
+        current_velocity = current_velocity + (time_step * (-g + (int(-current_drag) / mass)))
         current_altitude = float(current_altitude + (current_velocity * time_step))
 
         if current_altitude > max_altitude:
@@ -104,7 +104,7 @@ min_value = float(raw_input("Min value for rocket mass: "))
 max_value = float(raw_input("Max value for rocket mass: "))
 
 frontal_area = float(raw_input("Frontal area of rocket: "))
-coefficient_of_drag = float(raw_input("Coefficient of drag: "))
+drag_coefficient = float(raw_input("Coefficient of drag: "))
 
 masses = numpy.arange(min_value, max_value + 0.1, 0.1)
 
