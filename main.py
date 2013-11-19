@@ -68,7 +68,6 @@ def calculate(mass, frontal_area, drag_coefficient):
             max_altitude = current_altitude
 
         if current_altitude > 0:
-            print current_time, current_altitude, current_velocity, current_drag, air_density
             current_flightpath.add_rocket_position(current_time, current_altitude, current_velocity, current_drag)
 
         counter += 1
