@@ -3,6 +3,13 @@ import matplotlib.pyplot
 
 g = 9.81 # m/s^2
 time_step = 0.1 # s
+deployed = False
+peak_time = 0
+deployment_time = 0
+ejection_delay = 0
+timer = 0
+peaked = False
+
 
 class flight_path:
 
@@ -21,8 +28,13 @@ class flight_path:
 
 
 def calculate(mass, frontal_area, drag_coefficient):
-    
-    motor_thrust = [50 for x in range(30)] # 50N of constant thrust for 3 seconds
+    global deployed
+    global ejection_delay
+    global peak_time
+    global timer
+    global peaked
+
+    motor_thrust = [50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50]
 
     max_altitude = 0
     current_altitude = 0
@@ -35,17 +47,22 @@ def calculate(mass, frontal_area, drag_coefficient):
     pressure = 0
     air_density = 0
 
+
     current_flightpath = flight_path() # create flightpath object
 
-    counter = 0 
+    counter = 0
 
     while current_altitude > 0 or counter == 0:
         current_time = current_time + time_step
 
         # if there is still bumpf left in the motor, take it into account
-        if counter < len(motor_thrust):
+        if counter < len(motor_thrust)and motor_thrust[counter] != 0:
             current_velocity = current_velocity + ((motor_thrust[counter] / mass) * time_step)
-
+        elif peaked == False:
+            peak_time = timer
+            peaked = True
+            print "Motor burnout at time: " + str(timer) + " - ejection charge delay started"
+            
         # apply the appropriate pressure model calculations
         if current_altitude > 25000:
             temperature = -131.21 + (.00299 * current_altitude)
@@ -62,19 +79,24 @@ def calculate(mass, frontal_area, drag_coefficient):
         
         current_drag = (air_density / 2) * (current_velocity*abs(current_velocity)) * drag_coefficient * frontal_area
         current_velocity = current_velocity + (time_step * (-g + (int(-current_drag) / mass)))
+        if float(current_velocity) <= -4 and (deployed == False):
+            deployment_time = timer
+            deployed = True
+            ejection_delay = deployment_time - peak_time
+            print "Deployment at velocity: " + str(round((current_velocity),2)) + " at time: " + str(timer)
         current_altitude = float(current_altitude + (current_velocity * time_step))
-
-        if current_altitude > max_altitude:
+        
+        if current_altitude > max_altitude and not peaked:
             max_altitude = current_altitude
-
+            
         if current_altitude > 0:
             current_flightpath.add_rocket_position(current_time, current_altitude, current_velocity, current_drag)
 
         counter += 1
+        timer += time_step
 
-
-    print max_altitude
-    return max_altitude, current_flightpath
+    print "Hit the deck at velocity: " + str(current_velocity) + " at time: " + str(timer)
+    return max_altitude, current_flightpath, ejection_delay
 
 def plot(optimal_mass, optimal_alt, flightpath):
     
@@ -114,10 +136,11 @@ def run(masses, frontal_area, drag_coefficient):
     i = 0
     optimal_alt = 0
     optimal_mass = 0
+    ejection_delay = 0
 
     # goes through all masses in array defined by user until optimal is reached
     for mass in masses:
-        alt_at_mass, flightpath = calculate(mass, frontal_area, drag_coefficient)
+        alt_at_mass, flightpath, ejection_delay = calculate(mass, frontal_area, drag_coefficient)
         max_alt.append(alt_at_mass)
         if float(alt_at_mass) > float(optimal_alt):
             optimal_alt = alt_at_mass
@@ -128,10 +151,9 @@ def run(masses, frontal_area, drag_coefficient):
         i += 1
 
     #create object for the optimal mass and plot it
-    mass, flightpath = calculate(optimal_mass, frontal_area, drag_coefficient)
-
+    mass, flightpath, ejection_delay = calculate(optimal_mass, frontal_area, drag_coefficient)
+    print "required ejection charge delay: " + str(ejection_delay) + "s"
     plot(optimal_mass, optimal_alt, flightpath)
-
 
 
 query_user()
