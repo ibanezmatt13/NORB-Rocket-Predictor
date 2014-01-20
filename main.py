@@ -33,11 +33,6 @@ def estimate_thrust(current_time):
         else:
             estimated_thrust = 0
  
-    print "Min Thrust: " + str(min_thrust) + "at time: " + str(motor_times[i-1])
-    print "Max Thrust: " + str(max_thrust) + "at time: " + str(motor_times[i])
-    print "Estimated Thrust: " + str(estimated_thrust)
-    print "Current Time: " + str(current_time)
-    print ""
     return estimated_thrust
  
  
@@ -64,6 +59,8 @@ def calculate(mass, frontal_area, drag_coefficient):
     counter = 0
  
     while current_altitude > 0 or counter == 0:
+
+        estimated_thrust = estimate_thrust(current_time)
             
         # apply the appropriate pressure model calculations
         if current_altitude > 25000:
@@ -79,9 +76,8 @@ def calculate(mass, frontal_area, drag_coefficient):
             pressure = 101.29 * (((temperature + 273.1) / 288.08) ** 5.256)
             air_density = pressure / (.2869 * (temperature + 273.1))
 
-        
         current_drag = (air_density / 2) * (current_velocity*abs(current_velocity)) * drag_coefficient * frontal_area
-        current_velocity = current_velocity + (time_step * (-g + (int(-current_drag) / mass)))
+        current_velocity = current_velocity + (time_step * (-g + (int(-current_drag) + estimated_thrust / mass)))
         current_altitude = float(current_altitude + (current_velocity * time_step))
         
         if current_altitude > max_altitude and not peaked:
@@ -92,8 +88,6 @@ def calculate(mass, frontal_area, drag_coefficient):
  
         counter += 1
         current_time = current_time + time_step
-        if current_time <= float(motor_times[len(motor_times)-1]):
-            estimated_thrust = estimate_thrust(current_time)
  
     return max_altitude, current_flightpath
  
