@@ -28,10 +28,10 @@ def estimate_thrust(current_time):
         if motor_times[i] >= current_time:
             min_thrust = motor_thrust[i-1]
             max_thrust = motor_thrust[i]
-            estimated_thrust = (max_thrust + min_thrust) / 2
+            estimated_thrust = (max_thrust + min_thrust) / 2.
             break
         else:
-            estimated_thrust = 0
+            estimated_thrust = 0.
  
     return estimated_thrust
  
@@ -39,19 +39,19 @@ def estimate_thrust(current_time):
  
 def calculate(mass, frontal_area, drag_coefficient):
 
-    min_thrust = 0
-    max_thrust = 0
+    min_thrust = 0.
+    max_thrust = 0.
  
-    max_altitude = 0
-    current_altitude = 0
-    current_time = 0
-    current_velocity = 0
-    current_drag = 0
+    max_altitude = 0.
+    current_altitude = 0.
+    current_time = 0.
+    current_velocity = 0.
+    current_drag = 0.
  
     # used for pressure model calculations
-    temperature = 0
-    pressure = 0
-    air_density = 0
+    temperature = 0.
+    pressure = 0.
+    air_density = 0.
  
  
     current_flightpath = flight_path() # create flightpath object
@@ -63,11 +63,11 @@ def calculate(mass, frontal_area, drag_coefficient):
         estimated_thrust = estimate_thrust(current_time)
             
         # apply the appropriate pressure model calculations
-        if current_altitude > 25000:
+        if current_altitude > 25000.:
             temperature = -131.21 + (.00299 * current_altitude)
             pressure = 2.488 * (((temperature + 273.1) / 216.6) ** -11.388)
             air_density = pressure / (.2869 * (temperature + 273.1))
-        elif current_altitude >= 11000:
+        elif current_altitude >= 11000.:
             temperature = -56.46
             pressure = 22.65 * (10 ** (1.73 - (.000157 * current_altitude)))
             air_density = pressure / (.2869 * (temperature + 273.1))
@@ -77,13 +77,13 @@ def calculate(mass, frontal_area, drag_coefficient):
             air_density = pressure / (.2869 * (temperature + 273.1))
 
         current_drag = (air_density / 2) * (current_velocity*abs(current_velocity)) * drag_coefficient * frontal_area
-        current_velocity = current_velocity + (time_step * (-g + (int(-current_drag) + estimated_thrust / mass)))
+        current_velocity = current_velocity + (time_step * (-g + (float(-current_drag) + estimated_thrust) / mass))
         current_altitude = float(current_altitude + (current_velocity * time_step))
         
         if current_altitude > max_altitude and not peaked:
             max_altitude = current_altitude
             
-        if current_altitude > 0:
+        if current_altitude > 0.:
             current_flightpath.add_rocket_position(current_time, current_altitude, current_velocity, current_drag)
  
         counter += 1
@@ -127,8 +127,8 @@ def run(masses, frontal_area, drag_coefficient):
  
     max_alt = []
     i = 0
-    optimal_alt = 0
-    optimal_mass = 0
+    optimal_alt = 0.
+    optimal_mass = 0.
  
     # goes through all masses in array defined by user until optimal is reached
     for mass in masses:
