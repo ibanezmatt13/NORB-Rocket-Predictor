@@ -4,9 +4,10 @@ import matplotlib.pyplot
 g = 9.81 # m/s^2
 time_step = 0.1 # s
 peaked = False
+burnout = False
  
 motor_thrust = [2.569,9.369,17.275,24.285,29.73,27.01,22.58,17.99,14.126,12.099,10.808,9.876,9.306,9.105,8.901,8.698,8.31,8.294,4.613]
-motor_times = [0.546,0.718,0.879,1.066,1.257,1.436,1.59,1.612]
+motor_times = [0.049,0.116,0.184,0.237,0.282,0.297,0.311,0.322,0.348,0.386,0.442,0.546,0.718,0.879,1.066,1.257,1.436,1.59,1.612]
 
 class flight_path:
  
@@ -24,14 +25,21 @@ class flight_path:
  
  
 def estimate_thrust(current_time):
+    global burnout
+    
     for i in range(0, len(motor_times)):
         if motor_times[i] >= current_time:
             min_thrust = motor_thrust[i-1]
             max_thrust = motor_thrust[i]
             estimated_thrust = (max_thrust + min_thrust) / 2.
+
             break
         else:
+            if burnout == False:
+                burnout = True
+                print "Motor burnout"
             estimated_thrust = 0.
+
  
     return estimated_thrust
  
@@ -42,11 +50,12 @@ def calculate(mass, frontal_area, drag_coefficient):
     min_thrust = 0.
     max_thrust = 0.
  
-    max_altitude = 0.
+    peak_altitude = 0.
     current_altitude = 0.
     current_time = 0.
     current_velocity = 0.
     current_drag = 0.
+    peak_time = 0.
  
     # used for pressure model calculations
     temperature = 0.
@@ -81,8 +90,9 @@ def calculate(mass, frontal_area, drag_coefficient):
         current_velocity = current_velocity + (time_step * (-g + (float(-current_drag) + estimated_thrust) / mass))
         current_altitude = float(current_altitude + (current_velocity * time_step))
         
-        if current_altitude > max_altitude and not peaked:
-            max_altitude = current_altitude
+        if current_altitude > peak_altitude and not peaked:
+            peak_altitude = current_altitude
+            peak_time = current_time
             
         if current_altitude > 0.:
             current_flightpath.add_rocket_position(current_time, current_altitude, current_velocity, current_drag)
@@ -90,9 +100,11 @@ def calculate(mass, frontal_area, drag_coefficient):
         counter += 1
         current_time = current_time + time_step
  
-    return max_altitude, current_flightpath
+    return peak_altitude, peak_time, current_flightpath
  
-def plot(flightpath):
+def plot(peak_alt, peak_time, flightpath):
+
+    print "Apogee: " + str(peak_alt)
     
     time = numpy.asarray(flightpath.time)
     altitude = numpy.asarray(flightpath.altitude)
@@ -105,6 +117,8 @@ def plot(flightpath):
     matplotlib.pyplot.plot(time, altitude)
  
     axes_height.set_ylabel('Height in m')
+    axes_height.set_title("Apogee: " + str(peak_alt) + "m at time: " + str(peak_time) + " seconds")
+
  
     axes_drag.set_xlabel('Time in s')
     axes_drag.set_ylabel('Drag')
@@ -121,9 +135,9 @@ def query_user():
  
 def run(mass, frontal_area, drag_coefficient):
  
-    #create object for the optimal mass and plot it
-    max_alt, flightpath = calculate(mass, frontal_area, drag_coefficient)
-    plot(flightpath)
+    peak_alt, peak_time, flightpath = calculate(mass, frontal_area, drag_coefficient)
+    peak_alt = round(peak_alt, 2)
+    plot(peak_alt, peak_time, flightpath)
  
  
 query_user()
