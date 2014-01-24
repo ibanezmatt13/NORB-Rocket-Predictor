@@ -111,18 +111,18 @@ def plot(peak_alt, peak_time, flightpath):
     drag = numpy.asarray(flightpath.drag)
  
     axes_drag = matplotlib.pyplot.subplot(212)
-    matplotlib.pyplot.plot(time, drag)
+    matplotlib.pyplot.plot(time, drag, linewidth=2)
  
     axes_height = matplotlib.pyplot.subplot(211)
-    matplotlib.pyplot.plot(time, altitude)
+    matplotlib.pyplot.plot(time, altitude,'r-',linewidth=2)
  
     axes_height.set_ylabel('Height in m')
     axes_height.set_title("Apogee: " + str(peak_alt) + "m at time: " + str(peak_time) + " seconds")
-
  
     axes_drag.set_xlabel('Time in s')
     axes_drag.set_ylabel('Drag')
- 
+    #
+    matplotlib.pyplot.axvline(x=peak_time, ymin=0, ymax=peak_alt / max(axes_height), linewidth=4)
     matplotlib.pyplot.show()
  
  
