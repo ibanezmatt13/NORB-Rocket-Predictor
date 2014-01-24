@@ -121,8 +121,7 @@ def plot(peak_alt, peak_time, flightpath):
  
     axes_drag.set_xlabel('Time in s')
     axes_drag.set_ylabel('Drag')
-    #
-    matplotlib.pyplot.axvline(x=peak_time, ymin=0, ymax=peak_alt / max(axes_height), linewidth=4)
+    #matplotlib.pyplot.axvline(x=peak_time, ymin=0, ymax=peak_alt / max(axes_height), linewidth=4)
     matplotlib.pyplot.show()
  
  
