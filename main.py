@@ -16,12 +16,14 @@ class flight_path:
         self.altitude = []
         self.velocity = []
         self.drag = []
+        self.thrust = []
  
-    def add_rocket_position(self, time, altitude, velocity, drag):
+    def add_rocket_position(self, time, altitude, velocity, drag, thrust):
         self.time.append(time)
         self.altitude.append(altitude)
         self.velocity.append(velocity)
         self.drag.append(drag)
+        self.thrust.append(thrust)
  
  
 def estimate_thrust(current_time):
@@ -32,7 +34,6 @@ def estimate_thrust(current_time):
             min_thrust = motor_thrust[i-1]
             max_thrust = motor_thrust[i]
             estimated_thrust = (max_thrust + min_thrust) / 2.
-
             break
         else:
             if burnout == False:
@@ -95,7 +96,7 @@ def calculate(mass, frontal_area, drag_coefficient):
             peak_time = current_time
             
         if current_altitude > 0.:
-            current_flightpath.add_rocket_position(current_time, current_altitude, current_velocity, current_drag)
+            current_flightpath.add_rocket_position(current_time, current_altitude, current_velocity, current_drag, estimated_thrust)
  
         counter += 1
         current_time = current_time + time_step
@@ -109,18 +110,23 @@ def plot(peak_alt, peak_time, flightpath):
     time = numpy.asarray(flightpath.time)
     altitude = numpy.asarray(flightpath.altitude)
     drag = numpy.asarray(flightpath.drag)
+    thrust = numpy.asarray(flightpath.thrust)
  
-    axes_drag = matplotlib.pyplot.subplot(212)
+    axes_drag = matplotlib.pyplot.subplot(312)
     matplotlib.pyplot.plot(time, drag, linewidth=2)
  
-    axes_height = matplotlib.pyplot.subplot(211)
+    axes_height = matplotlib.pyplot.subplot(311)
     matplotlib.pyplot.plot(time, altitude,'r-',linewidth=2)
+
+    axes_thrust = matplotlib.pyplot.subplot(310)
+    matplotlib.pyplot.plot(time, thrust,'g-',linewidth=2)
  
-    axes_height.set_ylabel('Height in m')
+    axes_height.set_ylabel('Altitude M')
     axes_height.set_title("Apogee: " + str(peak_alt) + "m at time: " + str(peak_time) + " seconds")
  
-    axes_drag.set_xlabel('Time in s')
-    axes_drag.set_ylabel('Drag')
+    axes_thrust.set_xlabel('Time S')
+    axes_thrust.set_ylabel('Thrust N')
+    axes_drag.set_ylabel('Drag N')
     #matplotlib.pyplot.axvline(x=peak_time, ymin=0, ymax=peak_alt / max(axes_height), linewidth=4)
     matplotlib.pyplot.show()
  
