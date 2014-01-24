@@ -6,8 +6,8 @@ time_step = 0.1 # s
 peaked = False
  
 motor_thrust = [2.569,9.369,17.275,24.285,29.73,27.01,22.58,17.99,14.126,12.099,10.808,9.876,9.306,9.105,8.901,8.698,8.31,8.294,4.613]
-motor_times = [0.049,0.116,0.184,0.237,0.282,0.297,0.311,0.322,0.348,0.386,0.442,0.546,0.718,0.879,1.066,1.257,1.436,1.59,1.612]
- 
+motor_times = [0.546,0.718,0.879,1.066,1.257,1.436,1.59,1.612]
+
 class flight_path:
  
     def __init__(self):
@@ -77,6 +77,7 @@ def calculate(mass, frontal_area, drag_coefficient):
             air_density = pressure / (.2869 * (temperature + 273.1))
 
         current_drag = (air_density / 2) * (current_velocity*abs(current_velocity)) * drag_coefficient * frontal_area
+
         current_velocity = current_velocity + (time_step * (-g + (float(-current_drag) + estimated_thrust) / mass))
         current_altitude = float(current_altitude + (current_velocity * time_step))
         
@@ -91,7 +92,7 @@ def calculate(mass, frontal_area, drag_coefficient):
  
     return max_altitude, current_flightpath
  
-def plot(optimal_mass, optimal_alt, flightpath):
+def plot(flightpath):
     
     time = numpy.asarray(flightpath.time)
     altitude = numpy.asarray(flightpath.altitude)
@@ -104,7 +105,6 @@ def plot(optimal_mass, optimal_alt, flightpath):
     matplotlib.pyplot.plot(time, altitude)
  
     axes_height.set_ylabel('Height in m')
-    axes_height.set_title('Optimal Weight: ' + str(optimal_mass) + "KG   Max Altitude: " + str(optimal_alt) + "m")
  
     axes_drag.set_xlabel('Time in s')
     axes_drag.set_ylabel('Drag')
@@ -113,38 +113,17 @@ def plot(optimal_mass, optimal_alt, flightpath):
  
  
 def query_user():
- 
-    min_value = float(raw_input("Min value for rocket mass: "))
-    max_value = float(raw_input("Max value for rocket mass: "))
+    mass = float(raw_input("Rocket mass: "))
     frontal_area = float(raw_input("Frontal area of rocket: "))
     drag_coefficient = float(raw_input("Coefficient of drag: "))
+    
+    run(mass, frontal_area, drag_coefficient)
  
-    masses = numpy.arange(min_value, max_value + 0.1, 0.1)
- 
-    run(masses, frontal_area, drag_coefficient)
- 
-def run(masses, frontal_area, drag_coefficient):
- 
-    max_alt = []
-    i = 0
-    optimal_alt = 0.
-    optimal_mass = 0.
- 
-    # goes through all masses in array defined by user until optimal is reached
-    for mass in masses:
-        alt_at_mass, flightpath = calculate(mass, frontal_area, drag_coefficient)
-        max_alt.append(alt_at_mass)
-        if float(alt_at_mass) > float(optimal_alt):
-            optimal_alt = alt_at_mass
-            optimal_mass = mass
-        else:
-            break
-        
-        i += 1
+def run(mass, frontal_area, drag_coefficient):
  
     #create object for the optimal mass and plot it
-    mass, flightpath = calculate(optimal_mass, frontal_area, drag_coefficient)
-    plot(optimal_mass, optimal_alt, flightpath)
+    max_alt, flightpath = calculate(mass, frontal_area, drag_coefficient)
+    plot(flightpath)
  
  
 query_user()
