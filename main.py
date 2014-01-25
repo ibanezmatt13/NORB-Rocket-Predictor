@@ -1,13 +1,14 @@
 import numpy
-import matplotlib.pyplot
+import matplotlib.pyplot as plt
  
 g = 9.81 # m/s^2
-time_step = 0.1 # s
+time_step = 0.01 # s
 peaked = False
 burnout = False
- 
+
 motor_thrust = [2.569,9.369,17.275,24.285,29.73,27.01,22.58,17.99,14.126,12.099,10.808,9.876,9.306,9.105,8.901,8.698,8.31,8.294,4.613]
 motor_times = [0.049,0.116,0.184,0.237,0.282,0.297,0.311,0.322,0.348,0.386,0.442,0.546,0.718,0.879,1.066,1.257,1.436,1.59,1.612]
+
 
 class flight_path:
  
@@ -17,36 +18,38 @@ class flight_path:
         self.velocity = []
         self.drag = []
         self.thrust = []
+        self.burnout_time = 0.
  
-    def add_rocket_position(self, time, altitude, velocity, drag, thrust):
+    def add_rocket_position(self, time, altitude, velocity, drag, thrust, burnout_time):
         self.time.append(time)
         self.altitude.append(altitude)
         self.velocity.append(velocity)
         self.drag.append(drag)
         self.thrust.append(thrust)
+        self.burnout_time = burnout_time
  
  
 def estimate_thrust(current_time):
-    global burnout
     
     for i in range(0, len(motor_times)):
         if motor_times[i] >= current_time:
+            min_time = motor_times[i-1]
             min_thrust = motor_thrust[i-1]
             max_thrust = motor_thrust[i]
+            max_time = motor_times[i]
             estimated_thrust = (max_thrust + min_thrust) / 2.
+            estimated_time = (min_time + max_time) / 2
             break
         else:
-            if burnout == False:
-                burnout = True
-                print "Motor burnout"
             estimated_thrust = 0.
 
- 
     return estimated_thrust
  
  
  
 def calculate(mass, frontal_area, drag_coefficient):
+
+    global burnout
 
     min_thrust = 0.
     max_thrust = 0.
@@ -57,6 +60,7 @@ def calculate(mass, frontal_area, drag_coefficient):
     current_velocity = 0.
     current_drag = 0.
     peak_time = 0.
+    burnout_time = 0.
  
     # used for pressure model calculations
     temperature = 0.
@@ -71,6 +75,10 @@ def calculate(mass, frontal_area, drag_coefficient):
     while current_altitude > 0 or counter == 0:
 
         estimated_thrust = estimate_thrust(current_time)
+
+        if estimated_thrust == 0 and burnout == False:
+            burnout_time = current_time
+            burnout = True
             
         # apply the appropriate pressure model calculations
         if current_altitude > 25000.:
@@ -87,7 +95,6 @@ def calculate(mass, frontal_area, drag_coefficient):
             air_density = pressure / (.2869 * (temperature + 273.1))
 
         current_drag = (air_density / 2) * (current_velocity*abs(current_velocity)) * drag_coefficient * frontal_area
-
         current_velocity = current_velocity + (time_step * (-g + (float(-current_drag) + estimated_thrust) / mass))
         current_altitude = float(current_altitude + (current_velocity * time_step))
         
@@ -96,7 +103,7 @@ def calculate(mass, frontal_area, drag_coefficient):
             peak_time = current_time
             
         if current_altitude > 0.:
-            current_flightpath.add_rocket_position(current_time, current_altitude, current_velocity, current_drag, estimated_thrust)
+            current_flightpath.add_rocket_position(current_time, current_altitude, current_velocity, current_drag, estimated_thrust, burnout_time)
  
         counter += 1
         current_time = current_time + time_step
@@ -105,21 +112,26 @@ def calculate(mass, frontal_area, drag_coefficient):
  
 def plot(peak_alt, peak_time, flightpath):
 
-    print "Apogee: " + str(peak_alt)
-    
+    print "Apogee: " + str(peak_alt) + " metres at time: " + str(peak_time) + " seconds"
+    print "Motor burnout at time: " + str(flightpath.burnout_time) + " seconds"
     time = numpy.asarray(flightpath.time)
     altitude = numpy.asarray(flightpath.altitude)
     drag = numpy.asarray(flightpath.drag)
     thrust = numpy.asarray(flightpath.thrust)
- 
-    axes_drag = matplotlib.pyplot.subplot(312)
-    matplotlib.pyplot.plot(time, drag, linewidth=2)
- 
-    axes_height = matplotlib.pyplot.subplot(311)
-    matplotlib.pyplot.plot(time, altitude,'r-',linewidth=2)
 
-    axes_thrust = matplotlib.pyplot.subplot(310)
-    matplotlib.pyplot.plot(time, thrust,'g-',linewidth=2)
+    figure = plt.figure()
+    
+    axes_drag = figure.add_subplot(3,1,2)
+    plt.plot(time, drag, linewidth=2)
+ 
+    axes_height = figure.add_subplot(3,1,1)
+    plt.plot(time, altitude,'r-',linewidth=2)
+    plt.axvline(x=peak_time, ymin=0, ymax=peak_alt / peak_alt, linestyle='--', linewidth=2)
+    plt.text(peak_time, peak_alt/2, "Apogee", horizontalalignment='center', fontsize=9)
+    plt.axvline(x=flightpath.burnout_time, ymin=0, ymax=peak_alt / peak_alt, linestyle='--', linewidth=2)
+    plt.text(flightpath.burnout_time, peak_alt/2, "Motor\nburnout", horizontalalignment='center', fontsize=9)
+    axes_thrust = figure.add_subplot(3,1,0)
+    plt.plot(time, thrust,'g-',linewidth=2)
  
     axes_height.set_ylabel('Altitude M')
     axes_height.set_title("Apogee: " + str(peak_alt) + "m at time: " + str(peak_time) + " seconds")
@@ -127,8 +139,8 @@ def plot(peak_alt, peak_time, flightpath):
     axes_thrust.set_xlabel('Time S')
     axes_thrust.set_ylabel('Thrust N')
     axes_drag.set_ylabel('Drag N')
-    #matplotlib.pyplot.axvline(x=peak_time, ymin=0, ymax=peak_alt / max(axes_height), linewidth=4)
-    matplotlib.pyplot.show()
+    
+    plt.show()
  
  
 def query_user():
@@ -142,6 +154,8 @@ def run(mass, frontal_area, drag_coefficient):
  
     peak_alt, peak_time, flightpath = calculate(mass, frontal_area, drag_coefficient)
     peak_alt = round(peak_alt, 2)
+    flight_duration = max(flightpath.time)
+    print "Flight duration: " + str(flight_duration) + " seconds"
     plot(peak_alt, peak_time, flightpath)
  
  
