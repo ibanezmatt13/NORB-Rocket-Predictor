@@ -18,14 +18,16 @@ class flight_path:
         self.drag = []
         self.thrust = []
         self.burnout_time = 0.
+        self.estimated_time = []
  
-    def add_rocket_position(self, time, altitude, velocity, drag, thrust, burnout_time):
+    def add_rocket_position(self, time, altitude, velocity, drag, thrust, burnout_time, estimated_time):
         self.time.append(time)
         self.altitude.append(altitude)
         self.velocity.append(velocity)
         self.drag.append(drag)
         self.thrust.append(thrust)
         self.burnout_time = burnout_time
+        self.estimated_time.append(estimated_time)
 
 # function to populate motor arrays for selected motor
 # by reading ENG files for thrust/time data
@@ -62,14 +64,22 @@ def estimate_thrust(current_time):
     
     for i in range(0, len(motor_times)):
         if motor_times[i] >= current_time:
+            if i == 0:
+                min_time = 0.
+            else:
+                min_time = motor_times[i-1]
             min_thrust = motor_thrust[i-1]
             max_thrust = motor_thrust[i]
+            max_time = motor_times[i]
             estimated_thrust = (max_thrust + min_thrust) / 2.
+            estimated_time = (min_time + max_time) / 2
+            print estimated_time
             break
         else:
             estimated_thrust = 0.
+            estimated_time = current_time #no need to estimate as motor burnout reached
 
-    return estimated_thrust
+    return estimated_thrust, estimated_time
  
  
  
@@ -100,7 +110,7 @@ def calculate(mass, frontal_area, drag_coefficient):
  
     while current_altitude > 0 or counter == 0:
 
-        estimated_thrust = estimate_thrust(current_time)
+        estimated_thrust, estimated_time = estimate_thrust(current_time)
 
         if estimated_thrust == 0 and burnout == False:
             burnout_time = current_time
@@ -129,7 +139,7 @@ def calculate(mass, frontal_area, drag_coefficient):
             peak_time = current_time
             
         if current_altitude > 0.:
-            current_flightpath.add_rocket_position(current_time, current_altitude, current_velocity, current_drag, estimated_thrust, burnout_time)
+            current_flightpath.add_rocket_position(current_time, current_altitude, current_velocity, current_drag, estimated_thrust, burnout_time, estimated_time)
  
         counter += 1
         current_time = current_time + time_step
@@ -157,7 +167,7 @@ def plot(peak_alt, peak_time, flightpath):
     plt.axvline(x=flightpath.burnout_time, ymin=0, ymax=peak_alt / peak_alt, linestyle='--', linewidth=2)
     plt.text(flightpath.burnout_time, peak_alt/2, "Motor\nburnout", horizontalalignment='center', fontsize=9)
     axes_thrust = figure.add_subplot(3,1,0)
-    plt.plot(time, thrust,'g-',linewidth=2)
+    plt.plot(flightpath.estimated_time, thrust,'g-',linewidth=2)
  
     axes_height.set_ylabel('Altitude M')
     axes_height.set_title("Apogee: " + str(peak_alt) + "m at time: " + str(peak_time) + " seconds")
@@ -190,6 +200,7 @@ def run(mass, frontal_area, drag_coefficient):
     peak_alt = round(peak_alt, 2)
     flight_duration = max(flightpath.time)
     print "Flight duration: " + str(flight_duration) + " seconds"
+    print flightpath.estimated_time
     plot(peak_alt, peak_time, flightpath)
  
 print """Available motor types:
