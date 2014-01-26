@@ -62,12 +62,9 @@ def estimate_thrust(current_time):
     
     for i in range(0, len(motor_times)):
         if motor_times[i] >= current_time:
-            min_time = motor_times[i-1]
             min_thrust = motor_thrust[i-1]
             max_thrust = motor_thrust[i]
-            max_time = motor_times[i]
             estimated_thrust = (max_thrust + min_thrust) / 2.
-            estimated_time = (min_time + max_time) / 2
             break
         else:
             estimated_thrust = 0.
