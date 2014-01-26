@@ -73,7 +73,6 @@ def estimate_thrust(current_time):
             max_time = motor_times[i]
             estimated_thrust = (max_thrust + min_thrust) / 2.
             estimated_time = (min_time + max_time) / 2
-            print estimated_time
             break
         else:
             estimated_thrust = 0.
@@ -200,7 +199,6 @@ def run(mass, frontal_area, drag_coefficient):
     peak_alt = round(peak_alt, 2)
     flight_duration = max(flightpath.time)
     print "Flight duration: " + str(flight_duration) + " seconds"
-    print flightpath.estimated_time
     plot(peak_alt, peak_time, flightpath)
  
 print """Available motor types:
