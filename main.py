@@ -6,9 +6,8 @@ time_step = 0.01 # s
 peaked = False
 burnout = False
 
-motor_thrust = [2.569,9.369,17.275,24.285,29.73,27.01,22.58,17.99,14.126,12.099,10.808,9.876,9.306,9.105,8.901,8.698,8.31,8.294,4.613]
-motor_times = [0.049,0.116,0.184,0.237,0.282,0.297,0.311,0.322,0.348,0.386,0.442,0.546,0.718,0.879,1.066,1.257,1.436,1.59,1.612]
-
+motor_thrust = []
+motor_times = []
 
 class flight_path:
  
@@ -27,6 +26,36 @@ class flight_path:
         self.drag.append(drag)
         self.thrust.append(thrust)
         self.burnout_time = burnout_time
+
+# function to populate motor arrays for selected motor
+# by reading ENG files for thrust/time data
+def configure_motor(path):
+    motor_file = open(path, "r")
+
+    for line in motor_file:
+        line.lstrip()
+        split_line = line.split(" ")
+        current_time = split_line[0]
+        current_thrust = split_line[1]
+        current_time.strip()
+        current_thrust.strip()
+        motor_times.append(float(current_time))
+        motor_thrust.append(float(current_thrust))
+
+    motor_file.close()
+
+def find_motor(motor):
+
+    if motor == "F36" or motor == "f36":
+        path = "C:/Python27/Cesaroni_F36.eng"
+        configure_motor(path)
+        return True
+    elif motor == "D12" or "d12":
+        path = "C:/Python27/Estes_D12.eng"
+        configure_motor(path)
+        return True
+    else:
+        return False
  
  
 def estimate_thrust(current_time):
@@ -144,11 +173,19 @@ def plot(peak_alt, peak_time, flightpath):
  
  
 def query_user():
+    
     mass = float(raw_input("Rocket mass: "))
     frontal_area = float(raw_input("Frontal area of rocket: "))
     drag_coefficient = float(raw_input("Coefficient of drag: "))
-    
-    run(mass, frontal_area, drag_coefficient)
+    motor = str(raw_input("Motor: "))
+
+    result = find_motor(motor)
+
+    if result == True:
+        run(mass, frontal_area, drag_coefficient)
+    else:
+        print "Invalid motor details...\n"
+        query_user()
  
 def run(mass, frontal_area, drag_coefficient):
  
@@ -158,5 +195,11 @@ def run(mass, frontal_area, drag_coefficient):
     print "Flight duration: " + str(flight_duration) + " seconds"
     plot(peak_alt, peak_time, flightpath)
  
- 
+print """Available motor types:
+
+             - Cesaroni F36
+             - Estes D12
+
+When prompted, enter the engine identifier located in brackets
+next to the engine type above\n\n"""
 query_user()
