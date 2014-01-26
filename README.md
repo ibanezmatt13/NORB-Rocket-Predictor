@@ -5,8 +5,10 @@ Advanced prediction software to model the trajectory of a rocket based on many v
 This is an on-going project.
 
 
+The software currently does the following:
 
-At the moment, many variables are pre-defined as we haven't reached the stage of making them user-definable.
+1. Allows user to specify rocket mass, frontal area and drag coefficient of rocket, and desired rocket motor.
+2. The software then produces three graphs: altitude/time, drag/time, and thrust/time. 
 
 
 
