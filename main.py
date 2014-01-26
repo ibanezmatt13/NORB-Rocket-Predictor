@@ -30,8 +30,7 @@ class flight_path:
         self.burnout_time = burnout_time
         self.estimated_time.append(estimated_time)
 
-# function to populate motor arrays for selected motor
-# by reading ENG files for thrust/time data
+
 def configure_motor(path):
     motor_file = open(path, "r")
 
@@ -50,11 +49,11 @@ def configure_motor(path):
 def find_motor(motor):
 
     if motor == "F36" or motor == "f36":
-        path = "C:/Python27/Cesaroni_F36.eng"
+        path = "C:/Python27/Cesaroni_F36.txt"
         configure_motor(path)
         return True
     elif motor == "D12" or motor == "d12":
-        path = "C:/Python27/Estes_D12.eng"
+        path = "C:/Python27/Estes_D12.txt"
         configure_motor(path)
         return True
     else:
