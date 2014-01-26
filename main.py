@@ -1,5 +1,6 @@
 import numpy
 import matplotlib.pyplot as plt
+import sys
  
 g = 9.81 # m/s^2
 time_step = 0.01 # s
@@ -52,7 +53,7 @@ def find_motor(motor):
         path = "C:/Python27/Cesaroni_F36.eng"
         configure_motor(path)
         return True
-    elif motor == "D12" or "d12":
+    elif motor == "D12" or motor == "d12":
         path = "C:/Python27/Estes_D12.eng"
         configure_motor(path)
         return True
@@ -176,9 +177,17 @@ def plot(peak_alt, peak_time, flightpath):
     axes_drag.set_ylabel('Drag N')
     
     plt.show()
- 
- 
+
+
 def query_user():
+
+    print """Available motor types:
+
+             - Cesaroni F36 (F36)
+             - Estes D12 (D12)
+
+When prompted, enter the engine identifier located in brackets
+next to the engine type above\n\n"""
     
     mass = float(raw_input("Rocket mass: "))
     frontal_area = float(raw_input("Frontal area of rocket: "))
@@ -190,8 +199,13 @@ def query_user():
     if result == True:
         run(mass, frontal_area, drag_coefficient)
     else:
-        print "Invalid motor details...\n"
-        query_user()
+        print "\n\nInvalid motor details...\n"
+        response = raw_input("Enter R to retry or any other letter to exit: ")
+        print "\n\n"
+        if response == "R" or response == "r":
+            query_user()
+        else:
+            sys.exit()
  
 def run(mass, frontal_area, drag_coefficient):
  
@@ -201,11 +215,5 @@ def run(mass, frontal_area, drag_coefficient):
     print "Flight duration: " + str(flight_duration) + " seconds"
     plot(peak_alt, peak_time, flightpath)
  
-print """Available motor types:
 
-             - Cesaroni F36
-             - Estes D12
-
-When prompted, enter the engine identifier located in brackets
-next to the engine type above\n\n"""
 query_user()
