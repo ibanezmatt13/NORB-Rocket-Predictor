@@ -29,4 +29,4 @@ To run this for yourself, you need to ensure that you have the following Python 
 
 All can be found here: http://www.lfd.uci.edu/~gohlke/pythonlibs/ but for Linux users, just use pip.
 
-ALSO IMPORTANT: This software will not run properly unless all the .ENG files for the motors are located in the Python directory in the C drive. I'm currently working on adapting this software to run on Python 3.3 as well as Python 2.7.
+ALSO IMPORTANT: This software will not run properly unless all the text files for the motors are located in the Python directory in the C drive. I'm currently working on adapting this software to run on Python 3.3 as well as Python 2.7.
