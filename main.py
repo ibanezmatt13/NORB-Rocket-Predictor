@@ -33,7 +33,7 @@ class flight_path:
         self.burnout_alt = burnout_alt
 
 
-def configure_motor(path):
+def configure_motor(path, cluster):
     motor_file = open(path, "r")
 
     for line in motor_file:
@@ -43,20 +43,22 @@ def configure_motor(path):
         current_thrust = split_line[1]
         current_time.strip()
         current_thrust.strip()
+        current_thrust = float(current_thrust)
+        current_thrust = float(current_thrust * cluster)
         motor_times.append(float(current_time))
-        motor_thrust.append(float(current_thrust))
+        motor_thrust.append(current_thrust)
 
     motor_file.close()
 
-def find_motor(motor):
+def find_motor(motor, cluster):
 
     if motor == "F36" or motor == "f36":
         path = "C:/Python27/Cesaroni_F36.txt"
-        configure_motor(path)
+        configure_motor(path, cluster)
         return True
     elif motor == "D12" or motor == "d12":
         path = "C:/Python27/Estes_D12.txt"
-        configure_motor(path)
+        configure_motor(path, cluster)
         return True
     else:
         return False
@@ -136,7 +138,7 @@ def calculate(mass, frontal_area, drag_coefficient):
         current_drag = (air_density / 2) * (current_velocity*abs(current_velocity)) * drag_coefficient * frontal_area
         current_velocity = current_velocity + (time_step * (-g + (float(-current_drag) + estimated_thrust) / mass))
         current_altitude = float(current_altitude + (current_velocity * time_step))
-        
+
         if current_altitude < 0: # to prevent negative altitude
             current_altitude = 0
         
@@ -193,14 +195,17 @@ def query_user():
              - Estes D12 (D12)
 
 When prompted, enter the engine identifier located in brackets
-next to the engine type above\n\n"""
+next to the engine type above
+
+If you're clustering motors, you can only cluster motors of the same type\n\n"""
     
     mass = float(raw_input("Rocket mass: "))
     frontal_area = float(raw_input("Frontal area of rocket: "))
     drag_coefficient = float(raw_input("Coefficient of drag: "))
     motor = str(raw_input("Motor: "))
+    cluster = int(raw_input("Num of motors: "))
 
-    result = find_motor(motor)
+    result = find_motor(motor, cluster)
 
     if result == True:
         run(mass, frontal_area, drag_coefficient)
@@ -220,6 +225,7 @@ def run(mass, frontal_area, drag_coefficient):
     flight_duration = max(flightpath.time)
     print "Flight duration: " + str(flight_duration) + " seconds"
     plot(peak_alt, peak_time, flightpath)
+    print motor_thrust[0]
  
 
 query_user()
