@@ -34,6 +34,7 @@ class flight_path:
 
 
 def configure_motor(path, cluster):
+    print path
     motor_file = open(path, "r")
 
     for line in motor_file:
@@ -52,17 +53,30 @@ def configure_motor(path, cluster):
 
 def find_motor(motor, cluster):
 
-    if motor == "F36" or motor == "f36":
-        path = "C:/Python27/Cesaroni_F36.txt"
-        configure_motor(path, cluster)
-        return True
-    elif motor == "D12" or motor == "d12":
-        path = "C:/Python27/Estes_D12.txt"
-        configure_motor(path, cluster)
+    found = False
+
+    motors_list = open("C:/Python27/motors_list.txt", "r")
+    for line in motors_list:
+        line.lstrip()
+        split_line = line.split(" ")
+        current_motor = split_line[0]
+        motor_path = split_line[1]
+        current_motor.strip()
+        motor_path.rstrip('\n')
+        print current_motor
+        
+        if current_motor == motor:
+            found = True
+            break
+        
+    motors_list.close()
+
+    if found == True:
+        configure_motor(motor_path, cluster)
         return True
     else:
         return False
- 
+        
  
 def estimate_thrust(current_time):
     
@@ -192,6 +206,8 @@ def query_user():
     print """Available motor types:
 
              - Cesaroni F36 (F36)
+             - Cesaroni G88 (G88)
+             - Estes C11 (C11)
              - Estes D12 (D12)
 
 When prompted, enter the engine identifier located in brackets
