@@ -34,16 +34,15 @@ class flight_path:
 
 
 def configure_motor(path, cluster):
-    print path
     motor_file = open(path, "r")
 
     for line in motor_file:
-        line.lstrip()
+        line = line.lstrip()
         split_line = line.split(" ")
         current_time = split_line[0]
         current_thrust = split_line[1]
-        current_time.strip()
-        current_thrust.strip()
+        current_time = current_time.strip()
+        current_thrust = current_thrust.strip()
         current_thrust = float(current_thrust)
         current_thrust = float(current_thrust * cluster)
         motor_times.append(float(current_time))
@@ -57,13 +56,12 @@ def find_motor(motor, cluster):
 
     motors_list = open("C:/Python27/motors_list.txt", "r")
     for line in motors_list:
-        line.lstrip()
+        line = line.lstrip()
         split_line = line.split(" ")
         current_motor = split_line[0]
         motor_path = split_line[1]
-        current_motor.strip()
-        motor_path.rstrip('\n')
-        print current_motor
+        current_motor = current_motor.strip()
+        motor_path = motor_path.rstrip('\n')
         
         if current_motor == motor:
             found = True
