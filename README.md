@@ -8,7 +8,9 @@ This is an on-going project.
 The software currently does the following:
 
 1. Allows user to specify rocket mass, frontal area and drag coefficient of rocket, and desired rocket motor.
-2. The software then produces three graphs: altitude/time, drag/time, and thrust/time. 
+2. Allows user to specify number of motors if clustering is necessary (clusters of same motor type only)
+3. The software then produces three graphs: altitude/time, drag/time, and thrust/time.
+4. Dashed vertical lines on the various graphs show certain events during flight such as apogee and motor burnout.
 
 
 
