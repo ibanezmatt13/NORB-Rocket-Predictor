@@ -1,0 +1,4 @@
+F36 C:/Python27/Motor-Files/Cesaroni_F36.txt
+D12 C:/Python27/Motor-Files/Estes_D12.txt
+C11 C:/Python27/Motor-Files/Estes_C11.txt
+G88 C:/Python27/Motor-Files/Cesaroni_G88.txt
