@@ -137,6 +137,9 @@ def calculate(mass, frontal_area, drag_coefficient):
         current_velocity = current_velocity + (time_step * (-g + (float(-current_drag) + estimated_thrust) / mass))
         current_altitude = float(current_altitude + (current_velocity * time_step))
         
+        if current_altitude < 0: # to prevent negative altitude
+            current_altitude = 0
+        
         if current_altitude > peak_altitude and not peaked:
             peak_altitude = current_altitude
             peak_time = current_time
