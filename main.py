@@ -20,8 +20,9 @@ class flight_path:
         self.thrust = []
         self.burnout_time = 0.
         self.estimated_time = []
+        self.burnout_alt = 0.
  
-    def add_rocket_position(self, time, altitude, velocity, drag, thrust, burnout_time, estimated_time):
+    def add_rocket_position(self, time, altitude, velocity, drag, thrust, burnout_time, estimated_time, burnout_alt):
         self.time.append(time)
         self.altitude.append(altitude)
         self.velocity.append(velocity)
@@ -29,6 +30,7 @@ class flight_path:
         self.thrust.append(thrust)
         self.burnout_time = burnout_time
         self.estimated_time.append(estimated_time)
+        self.burnout_alt = burnout_alt
 
 
 def configure_motor(path):
@@ -96,6 +98,7 @@ def calculate(mass, frontal_area, drag_coefficient):
     current_drag = 0.
     peak_time = 0.
     burnout_time = 0.
+    burnout_alt = 0.
  
     # used for pressure model calculations
     temperature = 0.
@@ -113,6 +116,7 @@ def calculate(mass, frontal_area, drag_coefficient):
 
         if estimated_thrust == 0 and burnout == False:
             burnout_time = current_time
+            burnout_alt = current_altitude
             burnout = True
             
         # apply the appropriate pressure model calculations
@@ -138,7 +142,7 @@ def calculate(mass, frontal_area, drag_coefficient):
             peak_time = current_time
             
         if current_altitude > 0.:
-            current_flightpath.add_rocket_position(current_time, current_altitude, current_velocity, current_drag, estimated_thrust, burnout_time, estimated_time)
+            current_flightpath.add_rocket_position(current_time, current_altitude, current_velocity, current_drag, estimated_thrust, burnout_time, estimated_time, burnout_alt)
  
         counter += 1
         current_time = current_time + time_step
@@ -161,9 +165,9 @@ def plot(peak_alt, peak_time, flightpath):
  
     axes_height = figure.add_subplot(3,1,1)
     plt.plot(time, altitude,'r-',linewidth=2)
-    plt.axvline(x=peak_time, ymin=0, ymax=peak_alt / peak_alt, linestyle='--', linewidth=2)
+    plt.vlines(x=peak_time, ymin=0, ymax=peak_alt, linewidth=2)
     plt.text(peak_time, peak_alt/2, "Apogee", horizontalalignment='center', fontsize=9)
-    plt.axvline(x=flightpath.burnout_time, ymin=0, ymax=peak_alt / peak_alt, linestyle='--', linewidth=2)
+    plt.vlines(x=flightpath.burnout_time, ymin=0, ymax=flightpath.burnout_alt,linewidth=2)
     plt.text(flightpath.burnout_time, peak_alt/2, "Motor\nburnout", horizontalalignment='center', fontsize=9)
     axes_thrust = figure.add_subplot(3,1,0)
     plt.plot(flightpath.estimated_time, thrust,'g-',linewidth=2)
